@@ -1,0 +1,10 @@
+node_modules/
+.next/
+out/
+.env*
+*.log
+.DS_Store
+coverage/
+_workspace-conflict-backup/
+.pnpm-store/
+tsconfig.tsbuildinfo
