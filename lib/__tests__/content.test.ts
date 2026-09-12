@@ -1,12 +1,14 @@
 import { describe, expect, it } from "vitest";
 import {
   adjacentTopicWordIndex,
+  allWordContents,
   dictionaryWords,
   FIXED_DEFINITIONS,
   FIXED_TOPICS,
   moneyWord,
   topicOneWords,
   topics,
+  wordsForTopic,
 } from "@/data/content";
 
 const EXPECTED_TOPICS = [
@@ -64,7 +66,14 @@ describe("변경 금지 경제사전 고정 콘텐츠", () => {
     expect(dictionaryWords.every((item) => item.easyDefinition === FIXED_DEFINITIONS[item.word])).toBe(true);
   });
 
-  it("1주제 화면·인쇄·음성 데이터가 같은 고정 원본을 참조한다", () => {
+  it("모든 주제의 화면·인쇄·음성 데이터가 같은 고정 원본을 참조한다", () => {
+    expect(allWordContents).toHaveLength(20);
+    expect(allWordContents.map((item) => item.word)).toEqual(FIXED_TOPICS.flatMap((topic) => topic.words));
+    for (const item of allWordContents) {
+      expect(item.easyDefinition).toBe(FIXED_DEFINITIONS[item.word]);
+      expect(item.speech.word).toBe(item.word);
+      expect(item.speech.definition).toBe(FIXED_DEFINITIONS[item.word]);
+    }
     expect(topicOneWords.map((item) => item.word)).toEqual(FIXED_TOPICS[0].words);
     for (const item of topicOneWords) {
       expect(item.easyDefinition).toBe(FIXED_DEFINITIONS[item.word]);
@@ -74,8 +83,10 @@ describe("변경 금지 경제사전 고정 콘텐츠", () => {
     expect(moneyWord).toBe(topicOneWords[0]);
   });
 
-  it("1주제만 활성화되어 있다", () => {
-    expect(topics.filter((topic) => topic.available).map((topic) => topic.id)).toEqual([1]);
+  it("각 주제의 학습 데이터가 고정 단어 수와 순서를 따른다", () => {
+    for (const topic of FIXED_TOPICS) {
+      expect(wordsForTopic(topic.id).map((item) => item.word)).toEqual(topic.words);
+    }
   });
 
   it("단어 이동은 고정 순서를 따르고 양 끝을 넘지 않는다", () => {

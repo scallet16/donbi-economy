@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 type Point = { x: number; y: number };
 type Stroke = { eraser: boolean; points: Point[] };
 
-export function WritingCanvas({ completed, onComplete }: { completed: boolean; onComplete: () => void }) {
+export function WritingCanvas({ word, completed, onComplete }: { word: string; completed: boolean; onComplete: () => void }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const strokes = useRef<Stroke[]>([]);
   const current = useRef<Stroke | null>(null);
@@ -26,10 +26,10 @@ export function WritingCanvas({ completed, onComplete }: { completed: boolean; o
     context.fillStyle = "#fffdf5";
     context.fillRect(0, 0, rect.width, rect.height);
     context.fillStyle = "#d7d6ce";
-    context.font = `700 ${Math.min(190, rect.width * 0.38)}px sans-serif`;
+    context.font = `700 ${Math.min(190, rect.width / Math.max(2.7, word.length * 1.15))}px sans-serif`;
     context.textAlign = "center";
     context.textBaseline = "middle";
-    context.fillText("돈", rect.width / 2, rect.height / 2);
+    context.fillText(word, rect.width / 2, rect.height / 2);
     for (const stroke of strokes.current) {
       if (stroke.points.length < 2) continue;
       context.beginPath();
@@ -40,7 +40,7 @@ export function WritingCanvas({ completed, onComplete }: { completed: boolean; o
       stroke.points.forEach((point, index) => index ? context.lineTo(point.x * rect.width, point.y * rect.height) : context.moveTo(point.x * rect.width, point.y * rect.height));
       context.stroke();
     }
-  }, []);
+  }, [word]);
 
   useEffect(() => { draw(); window.addEventListener("resize", draw); return () => window.removeEventListener("resize", draw); }, [draw]);
 
@@ -56,9 +56,9 @@ export function WritingCanvas({ completed, onComplete }: { completed: boolean; o
 
   return <section className="panel writing-panel" aria-labelledby="writing-title">
     <span className="eyebrow">4단계 · 써 보기</span>
-    <h2 id="writing-title">연한 글씨를 따라 ‘돈’을 써 보세요</h2>
+    <h2 id="writing-title">연한 글씨를 따라 ‘{word}’을(를) 써 보세요</h2>
     <p>마우스, 손가락, 스타일러스로 쓸 수 있어요. 글씨 모양은 점수로 판단하지 않아요.</p>
-    <canvas ref={canvasRef} className="writing-canvas" aria-label="돈 글자를 따라 쓰는 영역" onPointerDown={start} onPointerMove={move} onPointerUp={stop} onPointerCancel={stop} />
+    <canvas ref={canvasRef} className="writing-canvas" aria-label={`${word} 글자를 따라 쓰는 영역`} onPointerDown={start} onPointerMove={move} onPointerUp={stop} onPointerCancel={stop} />
     <div className="button-row">
       <button className="secondary" aria-pressed={eraser} onClick={() => setEraser(!eraser)}>{eraser ? "✎ 연필 쓰기" : "⌫ 지우개"}</button>
       <button className="secondary" onClick={undo}>↶ 한 획 지우기</button>

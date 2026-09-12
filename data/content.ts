@@ -54,7 +54,6 @@ export const dictionaryWords = FIXED_TOPICS.flatMap((topic) =>
 export const topics = FIXED_TOPICS.map((topic) => ({
   ...topic,
   title: topic.prompt,
-  available: topic.id === 1,
 }));
 
 const wordContent = (id: string, topicId: number, word: FixedWord, examples: string[]): WordContent => ({
@@ -78,6 +77,49 @@ export const topicOneWords: WordContent[] = [
   wordContent("cash", 1, "현금", ["가게에서 현금으로 계산했어요."]),
   wordContent("card", 1, "카드", ["카드를 단말기에 대고 계산했어요."]),
 ];
+
+const WORD_IDS: Record<FixedWord, string> = {
+  "돈": "money", "현금": "cash", "카드": "card", "장보기": "grocery-shopping",
+  "마트": "mart", "인터넷 쇼핑": "online-shopping", "키오스크": "kiosk",
+  "상품": "product", "가격": "price", "수량": "quantity", "총금액": "total-price",
+  "지불": "payment", "영수증": "receipt", "소비": "consumption", "할인": "discount",
+  "1+1": "one-plus-one", "싸다": "inexpensive", "아끼다": "save", "환불": "refund", "교환": "exchange",
+};
+
+const LIFE_SENTENCES: Record<FixedWord, string[]> = {
+  "돈": moneyWord.examples,
+  "현금": ["가게에서 현금으로 계산했어요."],
+  "카드": ["카드로 물건값을 냈어요."],
+  "장보기": ["가족과 함께 장보기를 했어요."],
+  "마트": ["마트에서 필요한 물건을 샀어요."],
+  "인터넷 쇼핑": ["휴대폰으로 인터넷 쇼핑을 했어요."],
+  "키오스크": ["키오스크를 눌러 음식을 주문했어요."],
+  "상품": ["마트에 여러 상품이 진열되어 있어요."],
+  "가격": ["사고 싶은 물건의 가격을 확인했어요."],
+  "수량": ["장바구니에 담은 물건의 수량을 확인했어요."],
+  "총금액": ["계산하기 전에 총금액을 확인했어요."],
+  "지불": ["물건을 사고 카드로 지불했어요."],
+  "영수증": ["계산을 마치고 영수증을 받았어요."],
+  "소비": ["필요한 물건을 사는 데 돈을 소비했어요."],
+  "할인": ["할인하는 물건을 더 싸게 샀어요."],
+  "1+1": ["1+1 상품을 하나 사고 하나 더 받았어요."],
+  "싸다": ["이 가게의 연필은 가격이 싸요."],
+  "아끼다": ["필요하지 않은 물건은 사지 않고 돈을 아껴요."],
+  "환불": ["산 물건을 돌려주고 환불을 받았어요."],
+  "교환": ["크기가 맞지 않는 옷을 다른 옷으로 교환했어요."],
+};
+
+export const allWordContents: WordContent[] = FIXED_TOPICS.flatMap((topic) =>
+  topic.words.map((word) => wordContent(WORD_IDS[word], topic.id, word, LIFE_SENTENCES[word])),
+);
+
+export function wordsForTopic(topicId: number): WordContent[] {
+  return allWordContents.filter((word) => word.topicId === topicId);
+}
+
+export function wordById(wordId: string): WordContent | undefined {
+  return allWordContents.find((word) => word.id === wordId);
+}
 
 export function adjacentTopicWordIndex(current: number, direction: -1 | 1): number {
   return Math.max(0, Math.min(topicOneWords.length - 1, current + direction));
